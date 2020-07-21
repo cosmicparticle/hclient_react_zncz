@@ -1,6 +1,6 @@
 {
   "hydrocarbonServer1":"http://121.196.184.205:96/hydrocarbon",
-  "hydrocarbonServer":"http://121.196.184.205:96/hydrocarbon",
+  "hydrocarbonServer":"http://121.196.184.205:96/hydrocarbon/",
   "programName_NavLeft":"智能称重系统",
   "programName":"智能称重系统",
   "programName_sub":"智能称重系统",
