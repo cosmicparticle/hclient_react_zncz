@@ -74,7 +74,14 @@ export default class BaseInfoForm extends React.Component{
                 const fieldValue=item.value;
                 const available=item.fieldAccess && item.fieldAccess!=="读" && item.fieldAvailable ;
                 const fieldName=item.name
-                if(item.type==="date"){
+                let itemType=item.type;
+
+                //对关系属性之文件进行特殊处理
+                if(!!fieldValue && fieldValue.indexOf('@R@')===-1 && item.type==="relselect" && fieldValue.indexOf('download-files/')!=-1 ){
+                    itemType="file";
+                }
+
+                if(itemType==="date"){
                     const DATE= <FormItem label={title} key={field} className='labelcss'>
                                     {type==="detail"?<span className="infoStyle">{fieldValue}</span>:
                                         getFieldDecorator(fieldName,{
@@ -93,7 +100,7 @@ export default class BaseInfoForm extends React.Component{
                                     )}
                                 </FormItem>
                     formItemList.push(DATE)                
-                }else if(item.type==="datetime"){
+                }else if(itemType==="datetime"){
                     const DATETIME= <FormItem label={title} key={field} className='labelcss'>
                         {type==="detail"?<span className="infoStyle">{fieldValue}</span>:
                             getFieldDecorator(fieldName,{
@@ -114,7 +121,7 @@ export default class BaseInfoForm extends React.Component{
                             )}
                     </FormItem>
                     formItemList.push(DATETIME)
-                }else if(item.type==="text" || item.type===null){
+                }else if(itemType==="text" || itemType===null){
                     const TEXT= <FormItem label={title} key={field} className='labelcss'>
                                     {type==="detail"?<span className="infoStyle">{fieldValue}</span>:
                                         getFieldDecorator(fieldName,{
@@ -132,7 +139,7 @@ export default class BaseInfoForm extends React.Component{
                                     )}
                                 </FormItem>   
                     formItemList.push(TEXT)                
-                }else if(item.type==="password"){
+                }else if(itemType==="password"){
                     const TEXT= <FormItem label={title} key={field} className='labelcss'>
                                     {type==="detail"?<span className="infoStyle">******</span>:
                                         getFieldDecorator(fieldName,{
@@ -150,7 +157,7 @@ export default class BaseInfoForm extends React.Component{
                                     )}
                                 </FormItem> 
                     formItemList.push(TEXT)                
-                }else if(item.type==="select"){
+                }else if(itemType==="select"){
  //                   console.log(item.fieldId)
 
                     const SELECT= <FormItem label={title} key={field} className='labelcss'>
@@ -176,7 +183,7 @@ export default class BaseInfoForm extends React.Component{
                                         )}
                                     </FormItem> 
                     formItemList.push(SELECT)    
-                }else if(item.type==="multiselect"){
+                }else if(itemType==="multiselect"){
                     const LABEL= <FormItem label={title} key={field} className='labelcss'>
                                         {type==="detail"?<span className="infoStyle">{fieldValue}</span>:
                                             getFieldDecorator(fieldName,{
@@ -200,7 +207,7 @@ export default class BaseInfoForm extends React.Component{
                                         )}
                                 </FormItem>
                     formItemList.push(LABEL)   
-                }else if(item.type==="caselect"){ 
+                }else if(itemType==="caselect"){
                     const CASELECT= <FormItem label={title} key={field} className='labelcss'>
                                         {type==="detail"?<span className="infoStyle">{fieldValue}</span>:
                                         fieldValue?<div>
@@ -230,7 +237,7 @@ export default class BaseInfoForm extends React.Component{
                                         )}
                                 </FormItem>
                     formItemList.push(CASELECT)   
-                }else if(item.type==="relation") { //modelForm里面的关系下拉框
+                }else if(itemType==="relation") { //modelForm里面的关系下拉框
                     const SELECT = <FormItem label={title} key={field} className='labelcss'>
                         {getFieldDecorator("relation", {
                             initialValue: fieldValue?fieldValue:item.defaultValue,
@@ -249,7 +256,7 @@ export default class BaseInfoForm extends React.Component{
                             </Select>)}
                     </FormItem>
                     formItemList.push(SELECT)
-                }else if(item.type==="file"){
+                }else if(itemType==="file"){
  //                   console.log(fieldValue)
                     if(item.value && item.value.constructor ===File){
                         const FILE= <FormItem label={title} key={field} className='labelcss'>
@@ -293,7 +300,7 @@ export default class BaseInfoForm extends React.Component{
                         formItemList.push(FILE)
                     }
 
-                    }else if(item.type==="decimal" || item.type==="float" || item.type==="double"){
+                    }else if(itemType==="decimal" || itemType==="float" || itemType==="double"){
                         const decimal= <FormItem label={title} key={field} className='labelcss'>
                             {type==="detail"?<span className="infoStyle">{fieldValue}</span>:
                                 getFieldDecorator(fieldName,{
@@ -309,7 +316,7 @@ export default class BaseInfoForm extends React.Component{
                         </FormItem>
 
                     formItemList.push(decimal)   
-                }else if(item.type==="int"){
+                }else if(itemType==="int"){
                     const int= <FormItem label={title} key={field} className='labelcss'>
                                         {type==="detail"?<span className="infoStyle">{fieldValue}</span>:
                                         getFieldDecorator(fieldName,{
@@ -324,7 +331,7 @@ export default class BaseInfoForm extends React.Component{
                                         )}
                                     </FormItem>
                     formItemList.push(int)   
-                }else if(item.type==="textarea"){
+                }else if(itemType==="textarea"){
                     const textarea= <FormItem label={title} key={field} className='labelcss'>
                                         {type==="detail"?<span className="infoStyle">{fieldValue}</span>:
                                         getFieldDecorator(fieldName,{
@@ -341,16 +348,18 @@ export default class BaseInfoForm extends React.Component{
                                         )}
                                     </FormItem>
                     formItemList.push(textarea)   
-                } else if(item.type==="relselect" || item.type==="refselect" ){
+                } else if(itemType==="relselect" || itemType==="refselect" ){
+                    let isRValue=fieldValue?fieldValue.indexOf('@R@')!=-1:false;
                     let value=fieldValue==null?null:fieldValue.split('@R@')[1];
                     let code=fieldValue==null?undefined:fieldValue.split('@R@')[0];
                     let refGroupId=item.refGroupId;
                     let refselect=null;
                     if(!refGroupId){
+
                         refselect= <FormItem label={title} key={field} className='labelcss'>
-                            {type==="detail"?<span className="infoStyle">{value}</span>:
+                            {type==="detail"?<span className="infoStyle">{isRValue?value:fieldValue}</span>:
                                 getFieldDecorator(fieldName,{
-                                    initialValue:value,
+                                    initialValue:isRValue?value:fieldValue,
                                     rules:item.validators?[{
                                         required: true, message: `请输入${title}`,
                                     }]:"",
